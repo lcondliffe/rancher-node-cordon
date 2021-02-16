@@ -1,0 +1,91 @@
+---
+- name: Rancher API - Get node detail
+  uri:
+    method: GET
+    user: "{{ rancher_user }}"
+    password: "{{ rancher_password }}"
+    force_basic_auth: yes
+    body_format: json
+    url: https://{{ rancher_host }}/v3/nodes
+  register: node
+
+- name: Get API string for node cordon
+  set_fact: cordon_cmd={{ node | json_query(query)}}
+  vars:
+    query: "json.data[?nodeName=='{{ rancher_node_name }}'] | [0].actions.cordon"
+
+- name: Get API string for node drain
+  set_fact: drain_cmd={{ node | json_query(query)}}
+  vars:
+    query: "json.data[?nodeName=='{{ rancher_node_name }}'] | [0].actions.drain"
+
+- name: Get API string for node uncordon
+  set_fact: uncordon_cmd={{ node | json_query(query)}}
+  vars:
+    query: "json.data[?nodeName=='{{ rancher_node_name }}'] | [0].actions.uncordon"
+
+- name: Get available node actions
+  set_fact: available_actions={{ node | json_query(query)}}
+  vars:
+    query: "json.data[?nodeName=='{{ rancher_node_name }}'] | [0].actions"
+
+- name: Show available node actions
+  debug:
+    var: available_actions
+
+- name: Rancher API - Cordon node
+  uri:
+    method: POST
+    user: "{{ rancher_user }}"
+    password: "{{ rancher_password }}"
+    force_basic_auth: yes
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    url: "{{ cordon_cmd }}"
+  register: cordon_result
+  changed_when: cordon_result.status == 200
+  when: (rancher_node_cordon == "cordoned") and (available_actions["cordon"] is defined)
+
+- name: Rancher API - Drain node
+  uri:
+    method: POST
+    user: "{{ rancher_user }}"
+    password: "{{ rancher_password }}"
+    force_basic_auth: yes
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    url: "{{ cordon_cmd }}"
+  register: drain_result
+  changed_when: drain_result.status == 200
+  when: rancher_node_cordon == "drained" and (available_actions["drain"] is defined)
+
+- name: Rancher API - Uncordon node
+  uri:
+    method: POST
+    user: "{{ rancher_user }}"
+    password: "{{ rancher_password }}"
+    force_basic_auth: yes
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    url: "{{ uncordon_cmd }}"
+  register: uncordon_result
+  changed_when: uncordon_result.status == 200
+  when: rancher_node_cordon == "uncordoned" and (available_actions["uncordon"] is defined)
+
+- name: Show cordon result
+  debug:
+    var: cordon_result
+  when: (rancher_node_cordon == "cordoned")
+
+- name: Show drain result
+  debug:
+    var: drain_result
+  when: rancher_node_cordon == "drained"
+
+- name: Show uncordon result
+  debug:
+    var: uncordon_result
+  when: rancher_node_cordon == "uncordoned"
