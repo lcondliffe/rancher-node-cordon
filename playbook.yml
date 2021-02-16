@@ -1,0 +1,11 @@
+---
+- hosts: all
+  gather_facts: false
+  connection: local
+
+  vars:
+    rancher_host: rancher.derby.ac.uk
+    rancher_node_name: "{{ inventory_hostname }}"
+
+  roles:
+    - rancher-node-cordon
