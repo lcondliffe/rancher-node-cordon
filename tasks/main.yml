@@ -56,7 +56,13 @@
     headers:
       Content-Type: application/json
       Accept: application/json
-    url: "{{ cordon_cmd }}"
+    url: "{{ drain_cmd }}"
+    body_format: json
+    body:
+      deleteLocalData: true
+      force: false
+      ignoreDaemonSets: null
+      timeout: 120
   register: drain_result
   changed_when: drain_result.status == 200
   when: rancher_node_cordon == "drained" and (available_actions["drain"] is defined)
