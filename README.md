@@ -13,7 +13,7 @@ https://rancher.com/docs/rancher/v2.x/en/api/
 Role Variables
 --------------
 
-`rancher_host: rancher.derby.ac.uk`
+`rancher_host: rancher.example.com`
 
 `rancher_node_name: "{{ inventory_hostname }}"`
 
@@ -33,7 +33,7 @@ Example Playbook
   connection: local
 
   vars:
-    rancher_host: rancher.derby.ac.uk
+    rancher_host: rancher.example.com
     rancher_node_name: "{{ inventory_hostname }}"
     rancher_node_cordon: cordoned
 
