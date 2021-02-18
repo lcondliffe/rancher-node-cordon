@@ -10,22 +10,22 @@
   register: node
 
 - name: Get API string for node cordon
-  set_fact: cordon_cmd={{ node | json_query(query)}}
+  set_fact: cordon_cmd={{ node | json_query( query )}}
   vars:
     query: "json.data[?nodeName=='{{ rancher_node_name }}'] | [0].actions.cordon"
 
 - name: Get API string for node drain
-  set_fact: drain_cmd={{ node | json_query(query)}}
+  set_fact: drain_cmd={{ node | json_query( query )}}
   vars:
     query: "json.data[?nodeName=='{{ rancher_node_name }}'] | [0].actions.drain"
 
 - name: Get API string for node uncordon
-  set_fact: uncordon_cmd={{ node | json_query(query)}}
+  set_fact: uncordon_cmd={{ node | json_query( query )}}
   vars:
     query: "json.data[?nodeName=='{{ rancher_node_name }}'] | [0].actions.uncordon"
 
 - name: Get available node actions
-  set_fact: available_actions={{ node | json_query(query)}}
+  set_fact: available_actions={{ node | json_query( query )}}
   vars:
     query: "json.data[?nodeName=='{{ rancher_node_name }}'] | [0].actions"
 
