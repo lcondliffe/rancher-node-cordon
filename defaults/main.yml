@@ -1,2 +1,2 @@
 ---
-rancher_node_cordon: uncordoned
+rancher_node_cordon: active

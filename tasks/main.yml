@@ -78,7 +78,22 @@
     url: "{{ node_detail.json.actions.uncordon }}"
   register: uncordon_result
   changed_when: uncordon_result.status == 200
-  when: rancher_node_cordon == "uncordoned" and (node_detail.json.actions["uncordon"] is defined)
+  when: rancher_node_cordon == "active" and (node_detail.json.actions["uncordon"] is defined)
+
+- name: Rancher API - Wait for node status
+  uri:
+    method: GET
+    user: "{{ rancher_user }}"
+    password: "{{ rancher_password }}"
+    force_basic_auth: yes
+    body_format: json
+    url: https://{{ rancher_host }}/v3/nodes/{{ node_id }}
+  register: node_detail
+  until: node_detail.json.state == rancher_node_cordon
+
+- name: Show current node state
+  debug:
+    var: node_detail.json.state
 
 - name: Show cordon result
   debug:

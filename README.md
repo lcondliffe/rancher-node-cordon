@@ -17,7 +17,7 @@ Role Variables
 
 `rancher_node_name: "{{ inventory_hostname }}"`
 
-`rancher_node_cordon: uncordoned / cordoned / drained`
+`rancher_node_cordon: active / cordoned / drained`
 
 `rancher_user: token-fffff`
 
