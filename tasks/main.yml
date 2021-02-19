@@ -9,29 +9,28 @@
     url: https://{{ rancher_host }}/v3/nodes
   register: node
 
-- name: Get API string for node cordon
-  set_fact: cordon_cmd={{ node | json_query(query) }}
+- name: Query API result for node ID
+  set_fact: node_id={{ node | json_query(query) }}
   vars:
-    query: "json.data[?nodeName=='{{ rancher_node_name }}'] | [0].actions.cordon"
+    query: "json.data[?nodeName=='{{ rancher_node_name }}'] | [0].id"
 
-- name: Get API string for node drain
-  set_fact: drain_cmd={{ node | json_query(query) }}
-  vars:
-    query: "json.data[?nodeName=='{{ rancher_node_name }}'] | [0].actions.drain"
+- name: Rancher API - Retrieve node detail
+  uri:
+    method: GET
+    user: "{{ rancher_user }}"
+    password: "{{ rancher_password }}"
+    force_basic_auth: yes
+    body_format: json
+    url: https://{{ rancher_host }}/v3/nodes/{{ node_id }}
+  register: node_detail
 
-- name: Get API string for node uncordon
-  set_fact: uncordon_cmd={{ node | json_query(query) }}
-  vars:
-    query: "json.data[?nodeName=='{{ rancher_node_name }}'] | [0].actions.uncordon"
-
-- name: Get available node actions
-  set_fact: available_actions={{ node | json_query(query) }}
-  vars:
-    query: "json.data[?nodeName=='{{ rancher_node_name }}'] | [0].actions"
+- name: Show current node state
+  debug:
+    var: node_detail.json.state
 
 - name: Show available node actions
   debug:
-    var: available_actions
+    var: node_detail.json.actions
 
 - name: Rancher API - Cordon node
   uri:
@@ -42,10 +41,10 @@
     headers:
       Content-Type: application/json
       Accept: application/json
-    url: "{{ cordon_cmd }}"
+    url: "{{ node_detail.json.actions.cordon }}"
   register: cordon_result
   changed_when: cordon_result.status == 200
-  when: (rancher_node_cordon == "cordoned") and (available_actions["cordon"] is defined)
+  when: (rancher_node_cordon == "cordoned") and (node_detail.json.actions["cordon"] is defined)
 
 - name: Rancher API - Drain node
   uri:
@@ -56,7 +55,7 @@
     headers:
       Content-Type: application/json
       Accept: application/json
-    url: "{{ drain_cmd }}"
+    url: "{{ node_detail.json.actions.drain }}"
     body_format: json
     body:
       deleteLocalData: true
@@ -65,7 +64,7 @@
       timeout: 120
   register: drain_result
   changed_when: drain_result.status == 200
-  when: rancher_node_cordon == "drained" and (available_actions["drain"] is defined)
+  when: rancher_node_cordon == "drained" and (node_detail.json.actions["drain"] is defined)
 
 - name: Rancher API - Uncordon node
   uri:
@@ -76,10 +75,10 @@
     headers:
       Content-Type: application/json
       Accept: application/json
-    url: "{{ uncordon_cmd }}"
+    url: "{{ node_detail.json.actions.uncordon }}"
   register: uncordon_result
   changed_when: uncordon_result.status == 200
-  when: rancher_node_cordon == "uncordoned" and (available_actions["uncordon"] is defined)
+  when: rancher_node_cordon == "uncordoned" and (node_detail.json.actions["uncordon"] is defined)
 
 - name: Show cordon result
   debug:
