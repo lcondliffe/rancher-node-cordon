@@ -90,6 +90,7 @@
     url: https://{{ rancher_host }}/v3/nodes/{{ node_id }}
   register: node_detail
   until: node_detail.json.state == rancher_node_cordon
+  retries: 10
 
 - name: Show current node state
   debug:
