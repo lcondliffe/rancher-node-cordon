@@ -4,7 +4,7 @@
     method: GET
     user: "{{ rancher_user }}"
     password: "{{ rancher_password }}"
-    force_basic_auth: yes
+    force_basic_auth: true
     body_format: json
     url: https://{{ rancher_host }}/v3/nodes
   register: node
@@ -19,7 +19,7 @@
     method: GET
     user: "{{ rancher_user }}"
     password: "{{ rancher_password }}"
-    force_basic_auth: yes
+    force_basic_auth: true
     body_format: json
     url: https://{{ rancher_host }}/v3/nodes/{{ node_id }}
   register: node_detail
@@ -37,7 +37,7 @@
     method: POST
     user: "{{ rancher_user }}"
     password: "{{ rancher_password }}"
-    force_basic_auth: yes
+    force_basic_auth: true
     headers:
       Content-Type: application/json
       Accept: application/json
@@ -51,7 +51,7 @@
     method: POST
     user: "{{ rancher_user }}"
     password: "{{ rancher_password }}"
-    force_basic_auth: yes
+    force_basic_auth: true
     headers:
       Content-Type: application/json
       Accept: application/json
@@ -71,7 +71,7 @@
     method: POST
     user: "{{ rancher_user }}"
     password: "{{ rancher_password }}"
-    force_basic_auth: yes
+    force_basic_auth: true
     headers:
       Content-Type: application/json
       Accept: application/json
@@ -85,7 +85,7 @@
     method: GET
     user: "{{ rancher_user }}"
     password: "{{ rancher_password }}"
-    force_basic_auth: yes
+    force_basic_auth: true
     body_format: json
     url: https://{{ rancher_host }}/v3/nodes/{{ node_id }}
   register: node_detail
